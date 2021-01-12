@@ -11,7 +11,7 @@ module.exports = {
     let phone = data.phone;
     let email = data.email;
     let name = data.name;
-    let id = data.id ? data.id : user._id;
+    let id = user._id;
 
     let message = {
       email: false,
@@ -74,14 +74,13 @@ module.exports = {
   },
 
 
-  async delete(user, data) {
+  async deleteUser(user, data) {
 
-    let id = data.id ? data.id : user._id;
-    const user = user.user
+    let _id = user._id;
 
-    await User.findOneAndUpdate({ _id: id }, { $set: { accountActive: 2, verified: false } })
+    var message = await User.findByIdAndDelete({ _id })
 
-    return "updated"
+    return { message, status: "updated" }
   }
 
 
