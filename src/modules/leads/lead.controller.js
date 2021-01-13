@@ -1,33 +1,32 @@
-const ListService = require('../../modules/list/list.service')
+const LeadService = require('./service/lead.service')
 
 module.exports = {
-    get(req, res, next) {
-        ListService
-            .get(req.payload.user)
+    all(req, res, next) {
+        LeadService
+            .all(req.payload.user)
             .then(data => res.json(data))
             .catch(next)
     },
     add(req, res, next) {
-        ListService
+        LeadService
             .add(
                 req.payload.user,
-                req.body.message,
+                req.body,
             )
             .then(data => res.json(data))
             .catch(next)
     },
     update(req, res, next) {
-        ListService
+        LeadService
             .update(
                 req.payload.user,
-                req.body.id,
-                req.body.message,
+                req.body,
             )
             .then(data => res.json(data))
             .catch(next)
     },
     delete(req, res, next) {
-        ListService
+        LeadService
             .delete(
                 req.payload.user,
                 req.body.id,

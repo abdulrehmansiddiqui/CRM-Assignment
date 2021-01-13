@@ -1,6 +1,7 @@
 // const AdminService = require('./services/admin.service');
 const Admin = require("./admin.model");
 const User = require("../user/user.model");
+const Lead = require("../leads/lead.model");
 
 module.exports = {
   async reg(req, res, next) {
@@ -33,7 +34,7 @@ module.exports = {
           const admin = new Admin({ email, name, password, role: 2 });
           let adminDoc = await admin.save()
 
-          res.json({ auth: admin.generateJWT(), id: adminDoc._id, role: 2  });
+          res.json({ auth: admin.generateJWT(), id: adminDoc._id, role: 2 });
         }
       })
       .catch(next);
@@ -74,7 +75,7 @@ module.exports = {
     const { userid, status } = req.body;
 
     let singleUser
-    singleUser = await User.findOne({ _id: userid });
+    singleUser = await User.findOne({ _id: userid }, { password: 0, });
 
     if (singleUser) {
       return res.status(200).send({ msg: "User Successfully", data: singleUser })
@@ -149,7 +150,7 @@ module.exports = {
 
   async allUsers(req, res, next) {
     try {
-      let allUsers = await User.find({}, { salt: 0, hash: 0 }).sort({ createdAt: -1 })
+      let allUsers = await User.find({}, { password: 0, }).sort({ createdAt: -1 })
 
       if (allUsers.length > 0) {
         return res.status(200).send({ msg: "Get All the Users Successfully", data: allUsers })
@@ -177,48 +178,81 @@ module.exports = {
     }
   },
 
-  // async verifyUser(req, res, next) {
-  //   try {
 
-  //     const { userid, status } = req.body;
 
-  //     user = await User.findOneAndUpdate({ _id: userid }, { $set: { verified: status } })
+  async allLead(req, res,) {
+    console.log("Get all Lead API HIT")
 
-  //     if (user) {
-  //       return res.status(200).send({ msg: "This user is now verified" })
-  //     }
-  //     else {
-  //       return res.status(300).send({ msg: "No Users Found" })
-  //     }
-  //   }
-  //   catch (e) {
-  //     return res.status(422).send({ msg: "Error to verified user", err: e })
-  //   }
-  // },
+    let datatosend = await Lead.find().populate('user', 'name email role').then(data => {
+      return { message: "successfully", data }
+    }).catch(err => {
+      return res.status(422).send({ err: "error found", err })
+    })
 
-  // async blockUser(req, res, next) {
-  //   console.log("BLOCK USER")
-  //   try {
-  //     const { userid, status } = req.body;
+    return res.status(200).send({ datatosend })
 
-  //     user = await User.findOneAndUpdate({ _id: userid }, { $set: { accountActive: status } })
+  },
+  async allLeadbyUser(req, res,) {
+    console.log("Get all Lead API HIT")
 
-  //     var msg = "User has been unblock"
-  //     if (status) {
-  //       msg = "User has been Block"
-  //     }
+    let datatosend = await Lead.find({ user: req.body.userid }).then(data => {
+      return { message: "successfully", data }
+    }).catch(err => {
+      return res.status(422).send({ err: "error found", err })
+    })
 
-  //     if (user) {
-  //       return res.status(200).send({ status: true, msg })
-  //     }
-  //     else {
-  //       return res.status(300).send({ status: false, msg: "No Users Found", })
-  //     }
-  //   }
-  //   catch (e) {
-  //     return res.status(422).send({ status: false, msg: "Error Found User Worng ID", err: e })
-  //   }
-  // },
+    return res.status(200).send({ datatosend })
+
+  },
+
+  async addLead(req, res,) {
+    console.log("add Lead API HIT")
+
+    let _id = req.payload.user._id
+    let name = req.body.name
+    let email = req.body.email
+    let phone = req.body.phone
+
+    const lead = new Lead({ user: _id, name, phone, email });
+    let datatosend = await lead.save().then(data => {
+      return data
+    }).catch(err => {
+      return res.status(422).send({ err: "error found", err })
+    })
+    return res.status(200).send({ datatosend })
+
+  },
+
+  async updateLead(req, res,) {
+    console.log("Update Lead API HIT")
+
+    let _id = req.body.id
+    let name = req.body.name
+    let email = req.body.email
+    let phone = req.body.phone
+
+    let respo = await Lead.findOneAndUpdate({ _id }, { $set: { name, email, phone } }, { new: true })
+    return res.status(200).send({ message: "successfully Update", respo })
+
+
+  },
+
+  async deleteLead(req, res,) {
+    console.log("delete Lead API HIT")
+
+    let datatosend = await Lead.findOneAndRemove({ _id: req.body.id }).then(data => {
+      if (data) {
+        return { status: true, message: "successfully Delete" }
+      } else {
+        return { status: false, message: "NOT FOUND" }
+      }
+    }).catch(err => {
+      return res.status(422).send({ err: "error found", err })
+    })
+    return res.status(200).send({ datatosend })
+  },
+
+
 
 
 
