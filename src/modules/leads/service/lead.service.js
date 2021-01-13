@@ -23,7 +23,7 @@ module.exports = {
         let email = data.email
         let phone = data.phone
 
-        const lead = new Lead({ user: user._id, name, phone, email });
+        const lead = new Lead({ user: _id, name, phone, email });
         let datatosend = await lead.save().then(data => {
             return data
         }).catch(err => {
