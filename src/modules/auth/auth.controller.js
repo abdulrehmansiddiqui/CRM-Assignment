@@ -25,15 +25,17 @@ module.exports = {
         User.findOne({ email: { $regex: new RegExp(`^${email.trim()}$`, "i") } })
             .then(async item => {
                 if (item) {
-                    return res.status(422).send({
+                    return res.status(201).send({
+                        status: false,
                         name: "email",
                         message: "This email is already busy"
                     })
                 } else {
-                    const user = new User({ email, name, password, phone });
+                    const user = new User({ email, name, password, phone, role: 1 });
                     let userDoc = await user.save()
                     // console.log("xxxxxxxx", userDoc)
-                    res.json({ auth: user.generateJWT(), id: userDoc._id });
+
+                    res.json({ status: true, auth: user.generateJWT(), id: userDoc._id, role: 1, });
                 }
             })
             .catch(next);
@@ -54,6 +56,7 @@ module.exports = {
                 else {
                     if (user && user.validatePassword(password)) {
                         res.json({
+                            role: 1,
                             auth: user.generateJWT(),
                             id: user._id
                         });

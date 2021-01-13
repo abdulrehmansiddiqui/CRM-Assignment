@@ -30,10 +30,10 @@ module.exports = {
             message: "This email is already busy"
           })
         } else {
-          const admin = new Admin({ email, name, password });
+          const admin = new Admin({ email, name, password, role: 2 });
           let adminDoc = await admin.save()
 
-          res.json({ auth: admin.generateJWT(), id: adminDoc._id });
+          res.json({ auth: admin.generateJWT(), id: adminDoc._id, role: 2  });
         }
       })
       .catch(next);
@@ -53,6 +53,7 @@ module.exports = {
         else {
           if (admin && admin.validatePassword(password)) {
             res.json({
+              role: 2,
               auth: admin.generateJWT(),
               id: admin._id
             });
@@ -75,10 +76,10 @@ module.exports = {
     let singleUser
     singleUser = await User.findOne({ _id: userid });
 
-    if(singleUser){
+    if (singleUser) {
       return res.status(200).send({ msg: "User Successfully", data: singleUser })
     }
-    else{
+    else {
       return res.status(200).send({ msg: "No User Found" })
     }
 
@@ -143,7 +144,7 @@ module.exports = {
         })
     }
 
-    return res.status(200).send({ msg: "Update User Successfully",message })
+    return res.status(200).send({ msg: "Update User Successfully", message })
   },
 
   async allUsers(req, res, next) {

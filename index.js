@@ -2,9 +2,11 @@ const express = require('express')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const app = express()
+const cors = require('cors');
 
 const { mongoUrl } = require('./key')
 
+app.use(cors())
 
 app.use(function (req, res, next) {
     req.payload = {};
